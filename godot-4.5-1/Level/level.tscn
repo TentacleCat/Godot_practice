@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://gah4fiyscjkg"]
 
-[ext_resource type="Script" uid="uid://d1svon2t7bhpr" path="res://Gdscript/Map/game.gd" id="1_qmtf6"]
+[ext_resource type="Script" uid="uid://d1svon2t7bhpr" path="res://Gdscript/Map/dungeonMaker.gd" id="1_qmtf6"]
 [ext_resource type="Texture2D" uid="uid://b4smu0j28ijaf" path="res://Asserts/TileMap/Dungeon_Tileset.png" id="2_qmtf6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qmtf6"]
@@ -112,7 +112,6 @@ sources/0 = SubResource("TileSetAtlasSource_qmtf6")
 [node name="Map" type="Node2D"]
 script = ExtResource("1_qmtf6")
 world_size = Vector2i(120, 60)
-split_iterations = 4
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_uawph")

@@ -2,11 +2,13 @@ extends Node2D
 
 # === 可导出参数（在 Inspector 中可调节）===
 @export_group("World Settings")
-@export var world_size: Vector2i = Vector2i(60, 30)  ## 地图尺寸（格子数）
+@export var world_size: Vector2i = Vector2i(120, 60)  ## 地图尺寸（格子数）
 @export_range(8, 32, 1) var tile_size: int = 16  ## 每个瓦片的像素大小
 
 @export_group("BSP Settings")
-@export_range(1, 6, 1) var split_iterations: int = 2  ## BSP 分割次数（影响房间数量）
+@export_range(1, 6, 1) var split_iterations: int = 4  ## BSP 分割次数（影响房间数量）
+@export_range(1.0, 4.0, 0.1) var max_aspect_ratio: float = 1.0  ## 最大宽高比（防止细长房间）
+@export_range(4, 20, 1) var min_cell_size: int = 8  ## 最小单元格尺寸（分割终止条件）
 
 @export_group("Room Settings")
 @export_range(1, 5, 1) var min_padding: int = 2  ## 房间最小墙壁厚度
@@ -32,9 +34,9 @@ func generate_dungeon():
 	if tilemap:
 		tilemap.clear()
 	
-	# 创建新的 BSP 树
+	# 创建新的 BSP 树（传递参数）
 	root_node = Branch.new(Vector2i(0, 0), world_size)
-	root_node.split(split_iterations, paths)
+	root_node.split(split_iterations, paths, max_aspect_ratio, min_cell_size)
 	
 	# ✅ 在这里绘制房间和走廊到 TileMap
 	render_dungeon()
