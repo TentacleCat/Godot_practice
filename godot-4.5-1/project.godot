@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Godot4.5_1"
-run/main_scene="uid://dq33xs0hxtgpj"
+config/name="3_dungeon"
+run/main_scene="uid://gah4fiyscjkg"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
