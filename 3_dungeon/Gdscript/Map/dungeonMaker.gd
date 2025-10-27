@@ -18,6 +18,7 @@ extends Node2D
 var root_node: Branch
 var tilemap: TileMapLayer
 var paths: Array = []
+var selected_corridors: Array = []  # Kruskal 选中的走廊
 
 
 func _ready():
@@ -31,17 +32,27 @@ func generate_dungeon():
 	"""生成地牢（可以在运行时调用来重新生成）"""
 	# 清空之前的数据
 	paths.clear()
+	selected_corridors.clear()
 	if tilemap:
 		tilemap.clear()
 	
-	# 创建新的 BSP 树（传递参数）
+	# 步骤 1: 创建 BSP 树
 	root_node = Branch.new(Vector2i(0, 0), world_size)
 	root_node.split(split_iterations, paths, max_aspect_ratio, min_cell_size)
 	
-	# ✅ 在这里绘制房间和走廊到 TileMap
+	# 步骤 2: 获取所有叶子节点（房间）
+	var rooms = root_node.get_leaves()
+	print("\n=== 地牢生成 ===")
+	print("房间数量: %d" % rooms.size())
+	
+	# 步骤 3: 使用 Kruskal 算法生成最优走廊
+	selected_corridors = CorridorGenerator.generate_corridors(rooms)
+	print("走廊数量: %d" % selected_corridors.size())
+	
+	# 步骤 4: 渲染到 TileMap
 	render_dungeon()
 	
-	# 请求重绘调试图形
+	# 步骤 5: 请求重绘调试图形
 	queue_redraw()
 
 
@@ -67,28 +78,13 @@ func render_dungeon():
 						Vector2i(2, 2)                                        # atlas_coords
 					)
 	
-	# 绘制走廊
-	for path in paths:
-		if path['left'].y == path['right'].y:
-			# 水平走廊
-			for i in range(path['right'].x - path['left'].x):
-				tilemap.set_cell(
-					Vector2i(path['left'].x + i, path['left'].y),
-					0,
-					Vector2i(2, 2)
-				)
-		else:
-			# 垂直走廊
-			for i in range(path['right'].y - path['left'].y):
-				tilemap.set_cell(
-					Vector2i(path['left'].x, path['left'].y + i),
-					0,
-					Vector2i(2, 2)
-				)
+	# 绘制走廊（使用 Kruskal 算法选中的边）
+	for edge in selected_corridors:
+		CorridorGenerator.draw_corridor(edge, tilemap, 0, Vector2i(2, 2))
 
 
 func _draw():
-	"""绘制调试信息（BSP 分割的绿色边框）"""
+	"""绘制调试信息（BSP 分割的绿色边框 + 走廊连线）"""
 	if root_node == null:
 		return
 	
@@ -104,6 +100,19 @@ func _draw():
 			Color.GREEN,
 			false,  # 不填充，只画边框
 			2.0     # 线条宽度
+		)
+	
+	# 绘制走廊连线（黄色）
+	for edge in selected_corridors:
+		var rooms = edge.get_rooms()
+		var center_a = rooms[0].get_center()
+		var center_b = rooms[1].get_center()
+		
+		draw_line(
+			Vector2(center_a.x * tile_size, center_a.y * tile_size),
+			Vector2(center_b.x * tile_size, center_b.y * tile_size),
+			Color.YELLOW,
+			3.0
 		) 
 
 
